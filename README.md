@@ -70,4 +70,4 @@ CORS_ALLOW_ORIGINS=http://localhost:8080,http://127.0.0.1:8080,http://192.168.1.
 
 ## License
 
-Add your chosen license file and reference it here.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
