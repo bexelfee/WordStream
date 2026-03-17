@@ -3,10 +3,12 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta
+from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from typing import Iterable, Tuple
 import tempfile
+import threading
 
 from fastapi import HTTPException, UploadFile
 from sqlalchemy import func, select
@@ -83,14 +85,23 @@ def _ensure_audio_dir() -> Path:
     return audio_dir
 
 
+_whisper_lock = threading.Lock()
+
+
+@lru_cache(maxsize=1)
+def _get_whisper_model():
+    from faster_whisper import WhisperModel
+
+    return WhisperModel("base", device="cpu", compute_type="int8")
+
+
 def _transcribe_audio_sync(
     audio_path: Path, transcript_path: Path, language: str = "en"
 ) -> tuple[str, int]:
     """Run faster-whisper transcription. Returns (normalized_text, word_count)."""
-    from faster_whisper import WhisperModel
-
-    model = WhisperModel("base", device="cpu", compute_type="int8")
-    segments, _ = model.transcribe(str(audio_path), language=language or None)
+    model = _get_whisper_model()
+    with _whisper_lock:
+        segments, _ = model.transcribe(str(audio_path), language=language or None)
     full_text = " ".join(s.text for s in segments if s.text).strip()
     normalized = _normalize_whitespace(full_text)
     words = _tokenize_words(normalized)
