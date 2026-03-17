@@ -25,7 +25,7 @@ export function LibraryPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingOriginalTitle, setEditingOriginalTitle] = useState<string>('')
   const [uploading, setUploading] = useState(false)
-  const [config, setConfig] = useState<{ hf_token_configured?: boolean } | null>(null)
+  const [config, setConfig] = useState<{ hf_token_configured?: boolean; max_upload_mb?: number } | null>(null)
   const [hfBannerDismissed, setHfBannerDismissed] = useState(() =>
     localStorage.getItem('wordstream_hf_banner_dismissed') === '1'
   )
@@ -143,8 +143,42 @@ export function LibraryPage() {
         body: form,
       })
       if (!res.ok) {
-        const msg = await res.text()
-        throw new Error(msg || 'Upload failed')
+        let friendly = 'Upload failed'
+        try {
+          const contentType = res.headers.get('content-type') || ''
+          if (contentType.includes('application/json')) {
+            const data = await res.json()
+            if (typeof data?.detail === 'string' && data.detail.trim()) {
+              friendly = data.detail
+            }
+          } else {
+            const text = await res.text()
+            if (text && text.trim()) {
+              // If backend returned a JSON string, avoid showing raw JSON
+              try {
+                const parsed = JSON.parse(text)
+                if (typeof parsed?.detail === 'string' && parsed.detail.trim()) {
+                  friendly = parsed.detail
+                }
+              } catch {
+                friendly = text
+              }
+            }
+          }
+        } catch {
+          // fall back to default
+        }
+
+        if (res.status === 413) {
+          const maxMb = config?.max_upload_mb
+          if (typeof maxMb === 'number' && Number.isFinite(maxMb)) {
+            friendly = `File too large. Maximum supported size is ${maxMb} MB.`
+          } else {
+            friendly = 'File too large. Please try a smaller file.'
+          }
+        }
+
+        throw new Error(friendly)
       }
       const doc = await res.json()
       const summary = {

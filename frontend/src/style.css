@@ -289,13 +289,34 @@ body {
 }
 
 .reader-word {
+  position: relative;
   font-size: 64px;
   letter-spacing: 0.04em;
   color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  width: 14ch;
+  margin: 0 auto;
 }
 
 .reader-word-orp {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   color: var(--accent);
+}
+
+.reader-word-before {
+  position: absolute;
+  right: 50%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.reader-word-after {
+  position: absolute;
+  left: 50%;
+  white-space: nowrap;
 }
 
 .reader-anchor {
@@ -513,5 +534,6 @@ input[type='range'] {
 
   .reader-word {
     font-size: 44px;
+    width: 12ch;
   }
 }

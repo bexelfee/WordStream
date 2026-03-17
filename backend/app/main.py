@@ -64,6 +64,7 @@ async def get_config() -> dict:
     """Public config for the frontend (e.g. HF token set for model downloads)."""
     return {
         "hf_token_configured": bool(os.environ.get("HF_TOKEN")),
+        "max_upload_mb": settings.max_upload_mb,
     }
 
 
