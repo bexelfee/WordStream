@@ -1,0 +1,13 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+SQLAlchemy==2.0.36
+alembic==1.13.2
+python-multipart==0.0.9
+pydantic==2.9.2
+pydantic-settings==2.5.2
+databases[sqlite]==0.9.0
+pypdf==5.0.0
+pdfminer.six==20231228
+ebooklib==0.18
+gunicorn==23.0.0
+faster-whisper>=1.0.0

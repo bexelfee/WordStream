@@ -1,0 +1,13 @@
+services:
+  wordstream:
+    build: .
+    ports:
+      - "8080:8000"
+    environment:
+      - DATA_DIR=/data
+      - MAX_UPLOAD_MB=250
+      - CORS_ALLOW_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
+      - TRANSCRIPTION_STALE_MINUTES=30
+    volumes:
+      - ./wordstream-data:/data
+
